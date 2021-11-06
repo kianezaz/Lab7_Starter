@@ -25,6 +25,8 @@ const router = new Router(function () {
    * This will only be two single lines
    * If you did this right, you should see just 1 recipe card rendered to the screen
    */
+  document.querySelector('section.section--recipe-cards').classList.add('shown');
+  document.querySelection('section.section--recipe-expand').classList.remove('shown');
 });
 
 window.addEventListener('DOMContentLoaded', init);
@@ -92,13 +94,14 @@ function createRecipeCards() {
   const recipeCard = document.createElement('recipe-card');
   // Inputs the data for the card. This is just the first recipe in the recipes array,
   // being used as the key for the recipeData object
-  recipeCard.data = recipeData[recipes[0]];
+  //recipeCard.data = recipeData[recipes[0]];
 
   // This gets the page name of each of the arrays - which is basically
   // just the filename minus the .json. Since this is the first element
   // in our recipes array, the ghostCookies URL, we will receive the .json
   // for that ghostCookies URL since it's a key in the recipeData object, and
   // then we'll grab the 'page-name' from it - in this case it will be 'ghostCookies'
+  /*
   const page = recipeData[recipes[0]]['page-name'];
   router.addPage(page, function() {
     document.querySelector('.section--recipe-cards').classList.remove('shown');
@@ -108,7 +111,7 @@ function createRecipeCards() {
   bindRecipeCard(recipeCard, page);
 
   document.querySelector('.recipe-cards--wrapper').appendChild(recipeCard);
-
+  */
   /**
    * TODO - Part 1 - Step 3
    * Above I made an example card and added a route for the recipe at index 0 in
@@ -119,6 +122,27 @@ function createRecipeCards() {
    * After this step you should see multiple cards rendered like the end of the last
    * lab
    */
+
+  const recipeDataArr = Object.keys(recipeData);
+  for (let i = 0; i < recipeDataArr.length; i++) {
+    const currRecipeData = recipeDataArr[i];
+    console.log(currRecipeData);
+    const recipeCard = document.createElement('recipe-card');
+    recipeCard.data = recipeData[currRecipeData];
+    const page = currRecipeData['page-name'];
+    router.addPage(page, function() {
+      document.querySelector('.section--recipe-cards').classList.remove('shown');
+      document.querySelector('.section--recipe-expand').classList.add('shown');
+      document.querySelector('recipe-expand').data = recipeData[currRecipeData];
+    });
+    bindRecipeCard(recipeCard, page);
+    document.querySelector('.recipe-cards--wrapper').appendChild(recipeCard);
+  }
+  const cardsWrapper = document.querySelector('.recipe-cards--wrapper');
+  const cards = Array.from(cardsWrapper.children);
+  for (let i = 3; i < cards.length; i++) {
+    cards[i].classList.add('hidden');
+  }
 }
 
 /**
