@@ -14,6 +14,7 @@
 export class Router {
   static routes = {};
 
+
   /**
    * Sets up the home function, the page name should always be 'home', which
    * is why no page name variable is passed in.
@@ -66,5 +67,20 @@ export class Router {
      *     and URL + hash to history
      *  4. Finally, call the stored function for the given page
      */
+
+    if (this[page] === undefined) {
+      console.log('Error');
+      return;
+    }
+    let hash = ``;
+    if (page !== 'home') {
+      hash += `#${page}`;
+    }
+    if (!statePopped && window.location.hash !== hash) {
+      console.log('pushed ' + page)
+      const state = {page: page};
+      history.pushState(state, '', window.location.pathname + hash);
+    }
+    this[page]();
   }
 }

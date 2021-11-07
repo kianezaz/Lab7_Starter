@@ -26,7 +26,7 @@ const router = new Router(function () {
    * If you did this right, you should see just 1 recipe card rendered to the screen
    */
   document.querySelector('section.section--recipe-cards').classList.add('shown');
-  document.querySelection('section.section--recipe-expand').classList.remove('shown');
+  document.querySelector('section.section--recipe-expand').classList.remove('shown');
 });
 
 window.addEventListener('DOMContentLoaded', init);
@@ -124,17 +124,18 @@ function createRecipeCards() {
    */
 
   const recipeDataArr = Object.keys(recipeData);
-  for (let i = 0; i < recipeDataArr.length; i++) {
-    const currRecipeData = recipeDataArr[i];
+  for (let i = 0; i < recipes.length; i++) {
+    const currRecipeData = recipeData[recipes[i]];
     console.log(currRecipeData);
     const recipeCard = document.createElement('recipe-card');
-    recipeCard.data = recipeData[currRecipeData];
+    recipeCard.data = currRecipeData;
     const page = currRecipeData['page-name'];
     router.addPage(page, function() {
       document.querySelector('.section--recipe-cards').classList.remove('shown');
       document.querySelector('.section--recipe-expand').classList.add('shown');
-      document.querySelector('recipe-expand').data = recipeData[currRecipeData];
+      document.querySelector('recipe-expand').data = currRecipeData;
     });
+    console.log(page);
     bindRecipeCard(recipeCard, page);
     document.querySelector('.recipe-cards--wrapper').appendChild(recipeCard);
   }
@@ -198,6 +199,12 @@ function bindEscKey() {
    * if the escape key is pressed, use your router to navigate() to the 'home'
    * page. This will let us go back to the home page from the detailed page.
    */
+
+  document.addEventListener('keydown', e => {
+    if (e.key == 'Escape') {
+      router.navigate('home');
+    }
+  });
 }
 
 /**
@@ -219,4 +226,14 @@ function bindPopstate() {
    * so your navigate() function does not add your going back action to the history,
    * creating an infinite loop
    */
+  
+  window.addEventListener('popstate', e => {
+    console.log(e.state);
+    if (e.state !== null) {
+      router.navigate(e.state.page, true);
+    }
+    else {
+      router.navigate('home', true);
+    }
+  });
 }
