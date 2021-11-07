@@ -54,19 +54,35 @@ self.addEventListener('fetch', function (event) {
 
   // https://developers.google.com/web/fundamentals/primers/service-workers#cache_and_return_requests
 
-  console.log('fetch request : ' + e.request.url)
   event.respondWith(
-    caches.match(event.request).then(function (request) {
-      if (request) { // if cache is available, respond with cache
-        console.log('responding with cache : ' + event.request.url)
-        return request
-      } else {       // if there are no cache, try fetching request
-        console.log('file is not cached, fetching : ' + event.request.url)
-        return fetch(event.request)
-      }
+    caches.match(event.request)
+      .then(function(response) {
+        // Cache hit - return response
+        if (response) {
+          return response;
+        }
 
-      // You can omit if/else for console.log & put one line below like this too.
-      // return request || fetch(e.request)
-    })
-  )
+        return fetch(event.request).then(
+          function(response) {
+            // Check if we received a valid response
+            if(!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
+            }
+
+            // IMPORTANT: Clone the response. A response is a stream
+            // and because we want the browser to consume the response
+            // as well as the cache consuming the response, we need
+            // to clone it so we have two streams.
+            var responseToCache = response.clone();
+
+            caches.open(CACHE_NAME)
+              .then(function(cache) {
+                cache.put(event.request, responseToCache);
+              });
+
+            return response;
+          }
+        );
+      })
+    );
 });
